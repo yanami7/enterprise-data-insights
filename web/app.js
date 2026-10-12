@@ -1,0 +1,13 @@
+const $=s=>document.querySelector(s);let batch='',dimension='date';
+async function api(path,options){const r=await fetch(path,options);const data=await r.json();if(!r.ok)throw new Error(typeof data.detail==='string'?data.detail:'请求失败');return data}
+function el(tag,text){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e}
+function money(cents){return (cents/100).toFixed(2)}
+async function list(selected){const rows=await api('/api/batches');$('#batches').replaceChildren(...rows.map(r=>{const e=el('option',`${r.source} · ${r.accepted}条有效 / ${r.rejected}条异常`);e.value=r.id;return e}));batch=selected||rows[0]?.id||'';$('#batches').value=batch;if(batch)await render()}
+async function render(){const [s,r,bad]=await Promise.all([api(`/api/batches/${batch}/summary`),api(`/api/batches/${batch}/report?dimension=${dimension}`),api(`/api/batches/${batch}/rejects`)]);$('#metrics').replaceChildren(...[['有效数据',s.accepted],['异常数据',s.rejected],['完成订单',s.completed_orders],['收入（元）',money(s.revenue_cents)]].map(([label,value])=>{const e=el('article');e.className='metric';e.append(el('small',label),el('strong',value));return e}));const max=Math.max(1,...r.map(x=>x.revenue_cents));$('#chart').replaceChildren(...r.map(row=>{const e=el('div');e.className='barrow';const track=el('div');track.className='track';const bar=el('div');bar.className='bar';bar.style.width=`${row.revenue_cents/max*100}%`;track.append(bar);e.append(el('span',row.label),track,el('span',money(row.revenue_cents)));return e}));$('#rejects').replaceChildren(...bad.map(row=>{const e=el('tr');e.append(el('td',row.line),el('td',row.reason));return e}));$('#export').href=`/api/batches/${batch}/export`;$('#result').textContent='尚未运行核对'}
+function run(f){return async()=>{try{$('#message').textContent='';await f()}catch(e){$('#message').textContent=e.message}}}
+$('#demo').onclick=run(async()=>{const r=await api('/api/import/demo',{method:'POST'});await list(r.id);$('#message').textContent=r.reused?'相同数据已导入，复用批次避免重复统计。':'示例数据已导入。'});
+$('#file').onchange=run(async()=>{const file=$('#file').files[0];if(!file)return;if(file.size>5000000)throw new Error('请使用小于5MB的CSV');const r=await api('/api/import/csv',{method:'POST',headers:{'Content-Type':'text/plain'},body:await file.text()});await list(r.id)});
+$('#batches').onchange=run(async()=>{batch=$('#batches').value;await render()});
+$('#dimensions').onclick=async e=>{if(!e.target.dataset.dim)return;dimension=e.target.dataset.dim;await run(render)()};
+$('#check').onclick=run(async()=>{if(!batch)throw new Error('请先导入数据');const r=await api(`/api/batches/${batch}/reconcile`);$('#result').textContent=r.matches?`核对一致：${r.sql.length}个日期／渠道分组。`:'核对不一致，请检查输入与统计口径。'});
+run(()=>list())();
