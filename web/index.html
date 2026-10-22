@@ -1,5 +1,5 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>业务数据清洗与分析平台</title><link rel="stylesheet" href="/static/style.css"></head><body>
-<main><header><small>DATA INSIGHTS · 学习原型</small><h1>业务数据清洗与分析平台</h1><p>从原始订单到质量检查、统计结果和口径核对。示例数据为模拟数据。</p></header>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>基于 Python 的业务数据治理与分析平台</title><link rel="stylesheet" href="/static/style.css"></head><body>
+<main><header><small>DATA INSIGHTS · 学习原型</small><h1>基于 Python 的业务数据治理与分析平台</h1><p>从原始订单到质量检查、统计结果和口径核对。示例数据为模拟数据。</p></header>
 <section class="toolbar"><button id="demo">导入示例数据</button><label>导入CSV <input type="file" id="file" accept=".csv"></label><select id="batches"><option>选择批次</option></select><a id="export">下载日报</a></section><p id="message" role="status"></p>
 <section id="metrics" class="metrics"></section>
 <section class="panel"><h2>收入分布</h2><div id="dimensions"><button data-dim="date">按日期</button><button data-dim="region">按地区</button><button data-dim="channel">按渠道</button><button data-dim="product">按品类</button></div><p class="hint">只统计 completed 订单；取消和退款不计入。金额单位：元。</p><div id="chart"></div></section>

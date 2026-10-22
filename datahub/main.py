@@ -9,7 +9,7 @@ from datahub.pipeline import ROOT,connect,import_csv,report,summary,daily_channe
 from datahub.streaming import local_mapreduce
 
 DB=Path(os.environ.get('DATAHUB_DB',str(ROOT/'data'/'analytics.db')))
-app=FastAPI(title='业务数据清洗与分析平台',version='0.1.0')
+app=FastAPI(title='基于 Python 的业务数据治理与分析平台',version='0.1.0')
 app.mount('/static',StaticFiles(directory=ROOT/'web'),name='static')
 
 
